@@ -159,7 +159,7 @@ def construct_prompt(question, df, top_n=3):
     header =  header = """Answer the question in details, based only on the provided context and nothing else, and if the answer is not contained within the text below, say "I don't know.", do not invent or deduce!\n\nContext:\n"""
     return header + "".join(context) + "Q: " + question + "\n A:"
 
-def process_message(msg):
+def process_message(msg, verbose=0):
     # Get the message time
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -174,19 +174,24 @@ def process_message(msg):
     if msg.startswith("/h"):
         reply_body= "Commands:\n\n/q [question] - Ask a question\n/s [message] - Save a message\n/f [message] - Find related messages\n/h - Show this help menu"
 
-        # Save the message
+    # Save the message
     elif msg.startswith("/s "):
         data_to_save = msg.split("/s ")[1]
         # Save the massage to the database
         text_embedding = get_embedding(data_to_save, engine='text-embedding-ada-002')
-        df = df.append({"time": dt_string, "message": data_to_save, "ada_search": text_embedding}, ignore_index=True)
+        if verbose:
+            print ('original df size:', df.shape)
+        df= pd.concat ([df, pd.DataFrame({"time": dt_string, "message": data_to_save, "ada_search": [text_embedding]})], ignore_index=True, axis=0)
+        if verbose:
+            print('new df size:', df.shape)
         df.to_csv(PATH + "database.csv", index=False)
         reply_body= "Message saved successfully!"
     # Get a regular completion
     else:
         # Just get a regular completion from the model
         response = openai.Completion.create(prompt=msg, **REGULAR_COMPLETIONS_API_PARAMS)
-        #print(response)
+        if verbose:
+            print(response)
         reply_body= response["choices"][0]["text"]
 
     return reply_body
