@@ -186,6 +186,17 @@ def process_message(msg, verbose=0):
             print('new df size:', df.shape)
         df.to_csv(PATH + "database.csv", index=False)
         reply_body= "Message saved successfully!"
+
+    # Question answering
+    elif msg.startswith("/q "):
+        # Get the question
+        question = msg.split("/q ")[1]
+        # Construct the prompt
+        prompt = construct_prompt(question, df, top_n=3)
+        print("I'm gonna ask that:\n", prompt)
+        # Get the answer
+        response = openai.Completion.create(prompt=prompt, **QUESTION_COMPLETIONS_API_PARAMS)
+        reply_body= response["choices"][0]["text"]
     # Get a regular completion
     else:
         # Just get a regular completion from the model
@@ -199,8 +210,8 @@ def process_message(msg, verbose=0):
 def input_loop():
     continue_flag=True
     while (continue_flag==True):
-        msg = input("input something! ('terminate' to stop):").lower()
-        print ("you've inputted:", msg)
+        msg = input("Input something! ('terminate' to stop):").lower()
+        print ("\nYou've inputted:", msg)
 
         # termination
         if msg == 'terminate':
