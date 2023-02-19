@@ -1,11 +1,9 @@
 # UseOpenaiAPI
 
-thi
-
 This is the documentation for the UseOpenaiAPI project. 
 
 This project is a basic one, who's aim is to use the openai API. 
-It is cloned from a much more complicated project, the SelfGPT, sorcecode [here](https://github.com/mangate/SelfGPT)
+It is a stripped version of the SelfGPT, sorcecode [here](https://github.com/mangate/SelfGPT), where integration with whatsapp is also implemented.
 
 it makes advantage of two of the original bot's features:
 
