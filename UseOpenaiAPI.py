@@ -30,85 +30,6 @@ REGULAR_COMPLETIONS_API_PARAMS = {
     "model": COMPLETIONS_MODEL,
 }
 
-'''
-app = Flask(__name__)
- 
-@app.route("/wa")
-def wa_hello():
-    return "Hello, what can I do for you!"
- 
-@app.route("/wasms", methods=['POST'])
-def wa_sms_reply():
-    """Respond to incoming calls with a simple text message."""
-    # Fetch the message
-
-    msg= input('input something!: ')
-    #msg = request.form.get('Body').lower() # Reading the message from the whatsapp
-    # Get the message time
-    now = datetime.now()
-    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-    
-    # Load the database
-    df = pd.read_csv(PATH+"database.csv")
-
-    print("msg-->",msg) # Printing the message on the console, for debugging purpose
-    resp = MessagingResponse()
-    reply=resp.message()
-    
-    # Create reply
-    # ========================================
-    # Help menu
-    if msg.startswith("/h"):
-        reply.body("Commands:\n\n/q [question] - Ask a question\n/s [message] - Save a message\n/f [message] - Find related messages\n/h - Show this help menu")
-
-    # Question answering
-    elif msg.startswith("/q "):
-        # Get the question
-        question = msg.split("/q ")[1]
-        # Construct the prompt
-        prompt = construct_prompt(question, df, top_n=3)
-        # Get the answer
-        response = openai.Completion.create(prompt=prompt, **QUESTION_COMPLETIONS_API_PARAMS)
-        reply.body(response["choices"][0]["text"])
-    
-    # Save the message
-    elif msg.startswith("/s "):
-        data_to_save = msg.split("/s ")[1]
-        # Save the massage to the database
-        text_embedding = get_embedding(data_to_save, engine='text-embedding-ada-002')
-        df = df.append({"time":dt_string,"message":data_to_save, "ada_search": text_embedding},ignore_index=True)
-        df.to_csv(PATH+"database.csv",index=False)
-        reply.body("Message saved successfully!")
-
-    # Find related messages
-    elif msg.startswith("/f "):
-        query = msg.split("/f ")[1]
-        most_similar = return_most_similiar(query, df, top_n=3)
-        msg_reply = ''
-        for i in range(len(most_similar)):
-            msg_reply += most_similar.iloc[i]['time'] + ': ' + most_similar.iloc[i]['message'] + '\n'
-        reply.body(msg_reply)
-
-    # Placeholder for other commands
-    elif msg.startswith("/"):
-        reply.body("Sorry, I don't understand the command")
-
-    # Get a regular completion
-    else:
-        # Just get a regular completion from the model
-        COMPLETIONS_API_PARAMS = {
-            # We use temperature of 0.0 because it gives the most predictable, factual answer.
-            "temperature": 0.0,
-            "max_tokens": 200,
-            "model": COMPLETIONS_MODEL,
-        }
-        response = openai.Completion.create(prompt=msg, **REGULAR_COMPLETIONS_API_PARAMS)
-        print (response)
-        reply.body(response["choices"][0]["text"])
-        
-    return str(resp)
-'''
-
 def retry(func):
     def wrapper(*args, **kwargs):
         delay_time = kwargs.pop("delay_on_exception", 10)
@@ -236,6 +157,3 @@ if __name__ == "__main__":
         df.to_csv(PATH+"database.csv",index=False)
 
     input_loop()
-
-
-
